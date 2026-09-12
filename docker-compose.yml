@@ -1,0 +1,26 @@
+version: "3.8"
+
+# Lokaler SQL Server fuer den BundID-ServiceStack-Spike.
+# Start:  docker compose up -d
+# Verbindung passend zu src/BundIdSpike.Api/appsettings.Development.json
+# (Server=localhost,11433; sa / Spike!2026-local-only)
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bundidspike-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Spike!2026-local-only"
+      MSSQL_PID: "Developer"
+    ports:
+      - "11433:1433"
+    volumes:
+      - bundidspike-mssql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  bundidspike-mssql-data:
